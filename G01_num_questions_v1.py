@@ -14,7 +14,5 @@ def num_check():
     except ValueError:
         print(error)
 
-# main routine
-
 while True:
     to_check = num_check()
