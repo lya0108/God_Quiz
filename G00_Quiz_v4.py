@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk  # for combobox
+from tkinter import ttk
 from tkinter import *
 from functools import partial  # prevents unwanted windows
 import csv
@@ -9,6 +9,7 @@ import random
 button_font = ("Arial", "16", "bold")
 button_fg = "#FFFFFF"
 
+# main, help, and play class (play class can only play 1 round I.E no next round)
 
 class main:
     def __init__(self):
@@ -30,8 +31,7 @@ class main:
         self.main_entry = Entry(self.entry_frame, font=("Arial", "12"), width=18)
         self.main_entry.grid(row=0, column=0, ipady=6, padx=10)
 
-        self.current_diff = StringVar()  # create variable for combobox
-        self.dropbox = ttk.Combobox(self.entry_frame, textvariable=self.current_diff, values=("Normal", "Hard"),
+        self.dropbox = ttk.Combobox(self.entry_frame, textvariable=StringVar(), values=("Normal", "Hard"),
                                     state="readonly", font=("Arial", "18"), width=6)
         self.dropbox.current(0)  # sets default value on dropbox to first item in list
         self.dropbox.grid(row=0, column=1)
@@ -58,7 +58,6 @@ class main:
 
     # checks user input is bigger than 0
     def num_question(self):
-        difficulty = ""  # resets difficulty for new game
 
         has_error = "no"
         error = "Please Enter a Number That is More Than 0"
@@ -75,28 +74,31 @@ class main:
             has_error = "yes"
 
         if has_error == "yes":
-            self.error_label.config(text=error, fg="#9C0000")  # red text
-            self.main_entry.config(bg="#F8CECC")  # pink entry box
+            # red text, pink entry box
+            self.error_label.config(text=error, fg="#9C0000")
+            self.main_entry.config(bg="#F8CECC")
 
         else:
-            difficulty = self.current_diff.get()  # get new difficulty from combobox
-            self.error_label.config(text="", fg="#000000")  # black text
-            self.main_entry.config(bg="#FFFFFF")  # white entry box
-            self.to_play(response, difficulty)
+            # black text, white entry box
+            self.error_label.config(text="", fg="#000000")
+            self.main_entry.config(bg="#FFFFFF")
+            self.to_play(response)
 
-        self.main_entry.delete(0, END)  # clears entry widget
+        # clears entry widget
+        self.main_entry.delete(0, END)
 
     @staticmethod
-    def to_play(how_many, difficulty):
-        Play(how_many, difficulty)
-        root.withdraw()  # hide root window
+    def to_play(how_many):
+        Play(how_many)
+        # hide root window
+        root.withdraw()
 
     def to_help(self):
         DisplayHelp(self)
 
 
 class Play:
-    def __init__(self, how_many, difficulty):
+    def __init__(self, how_many):
         self.play_box = Toplevel()
 
         self.all_gods = self.get_all_gods()
@@ -115,16 +117,16 @@ class Play:
         self.question_label = Label(self.quiz_frame, text="", wrap=300)
         self.question_label.grid(row=1)
 
-        self.choice_frame = Frame(self.quiz_frame)  # frame for choice buttons
+        # create buttons to choose
+        self.choice_frame = Frame(self.quiz_frame)
         self.choice_frame.grid(row=2)
 
         self.choice_button_ref = []
         self.button_gods_list = []
 
-        # create buttons to choose
         for item in range(0, 4):
             self.choice_button = Button(self.choice_frame,
-                                        width=18, wrap=100, disabledforeground="#000000")
+                                        width=18, wrap=100)
 
             self.choice_button.grid(row=item // 2, column=item % 2, padx=10, pady=5)
 
@@ -143,7 +145,7 @@ class Play:
                                   command=self.new_round)
         self.next_button.grid(row=0, column=1, padx=10)
 
-        self.new_round(difficulty)
+        self.new_round()
 
     # gets gods from csv file
     def get_all_gods(self):
@@ -151,7 +153,8 @@ class Play:
         var_all_gods = list(csv.reader(file, delimiter=","))
         file.close()
 
-        var_all_gods.pop(0)  # remove the first row (header values)
+        # remove the first row (header values)
+        var_all_gods.pop(0)
         return var_all_gods
 
     # get 4 gods for each round
@@ -173,7 +176,7 @@ class Play:
 
         return round_gods_list
 
-    def new_round(self, difficulty):
+    def new_round(self):
         self.next_button.config(state=DISABLED)
 
         self.button_gods_list.clear()
@@ -192,11 +195,8 @@ class Play:
             if i == correct_index:
                 # If this is the correct answer button
                 self.choice_button_ref[i].config(command=lambda: self.check_answer(correct_index))
-                if difficulty == "Normal":
-                    self.question_label.config(
-                        text=f"Who is the {self.button_gods_list[i][0]} {self.button_gods_list[i][2]}")
-                else:
-                    self.question_label.config(text=f"Who is the {self.button_gods_list[i][2]}")
+                self.question_label.config(
+                    text=f"Who is the {self.button_gods_list[i][0]} {self.button_gods_list[i][2]}")
             else:
                 # If this is not the correct answer button
                 self.choice_button_ref[i].config(command=lambda: self.check_answer(correct_index))
@@ -228,8 +228,8 @@ class DisplayHelp:
 
         # setup dialogue box
         self.help_box = Toplevel()
-        self.help_box.title("Help")
-        self.help_box.geometry("314x300")
+        self.help_box.title("Don't Extend Window")
+        self.help_box.geometry("310x240")
 
         # disable help button
         partner.help_button.config(state=DISABLED)
@@ -237,23 +237,59 @@ class DisplayHelp:
         # if user closes the help frame 'releases' help button
         self.help_box.protocol("WM_DELETE_WINDOW", partial(self.close_help, partner))
 
-        self.help_frame = Frame(self.help_box, bg=background)
+        self.help_frame = Frame(self.help_box, width=300, height=200, bg=background)
         self.help_frame.grid()
 
         self.help_heading = Label(self.help_frame, text="Help / Info", font=("Arial", "30", "bold"), bg=background)
         self.help_heading.grid(row=0, column=0)
 
         helpinfo = "Enter Number of Questions Then Press Enter. A question will appear. When you select a god the " \
-                   "game will tell you whether you're correct or not. Then press 'Next' to move on\n\nNormal " \
-                   "Difficulty: Default\nHard Difficulty: removes pantheon hint in question"
+                   "game will tell you whether you're correct or not. Then press 'Next' to move on"
 
         self.help_info = Label(self.help_frame, text=helpinfo, font=("Arial", "12"), bg=background, wrap=300,
-                               justify=LEFT)
+                               justify=CENTER)
         self.help_info.grid(row=1, padx=10, pady=10, column=0)
 
         self.return_button = Button(self.help_frame, text="Return", font=("Arial", "15", "bold"), bg="#a30000",
                                     fg="white", width=10, command=partial(self.close_help, partner))
         self.return_button.grid(row=2, pady=10, column=0)
+
+        self.pic = Label(self.help_frame, text="""
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠛⠛⠛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠉⠀⣠⣶⣶⣄⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠛⠁⣀⣶⣿⣿⣿⣿⣿⣆⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠋⠁
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠋⠁⢀⣤⣶
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠋⠁⢀⣠⣾⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠋⠀⢀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⠀⠈⠉⠉⠙⠛⠛⠻⢿⣿⡿⠟⠁⠀⣀⣴⣿⣿⣿⣿⣿⠟
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⠀⢀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠛⣉⣡⠀⣠⣴⣶⣶⣦⠄⣀⡀⠀⠀ ⠀⣠⣾⣿⣿⣿⣿⣿⡿⢃⣾
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⣾⣤⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⣠⣾⡟⢡⣾⣿⣿⣿⡿⢋⣴⣿⡿⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⢡⣾⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠃⠀⢻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⣼⣿⡟⣰⣿⣿⣿⣿⠏⣰⣿⣿⠟⣠⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇⢚⣛⢿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠏⠀⣠⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣟⠸⣿⠟⢰⣿⣿⣿⣿⠃⣾⣿⣿⠏⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⢋⣾
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠻⠻⠃⠀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⢉⣴⣿⣿⣿⣿⡇⠘⣿⣿⠋⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⡘⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⡿⠿⠿⣿⣿⣿⣿⠁⢀⣀⠀⢀⣾⣿⣿⣿⣿⣿⣿⠟⠉⠉⠉⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⣤⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣌
+⣿⣿⣿⣿⣿⣿⡿⠁⣀⣤⡀⠀⠈⠻⢿⠀⣼⣿⣷⣿⣿⣿⣿⣿⣿⡿⠁⠀⠀⠀ ⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⠟⠛⠙⠃⠀⣿⣿⣿⠀⠀ ⠀⠀⠀⠙⠿⣿⣿⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀ ⠀⣾⣿⣿⡿⠿⠿⠿⠿⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠛⠁⠀⠀⠀⠈⠻⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⠟⠁⢀⣴⣶⣶⣾⣿⣿⣿⣿⣶⡐⢦⣄⠀⠀⠈⠛⢿⣿⣿⣿⣿⡀⠀⠀ ⠀⠀⢀⣼⡿⢛⣩⣴⣶⣶⣶⣶⣶⣶⣭⣙⠻⣿⣿⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠘⣿⣿⣿⣿⣿⣿⣿
+⠁⠀⣴⣿⣿⣿⣿⠿⠿⣿⣿⣿⣿⣿⣦⡙⠻⣶⣄⡀⠀⠈⠙⢿⣿⣷⣦⣤⣤⣴⣿⡏⣠⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣌⠻⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿
+⠀⢸⣿⣿⣿⠋⣠⠔⠀⠀⠻⣿⣿⣿⣿⢉⡳⢦⣉⠛⢷⣤⣀⠀⠈⠙⠿⣿⣿⣿⣿⢸⣿⡄⠻⣿⣿⠟⡈⣿⣿⣿⣿⣿⢉⣿⣧⢹⣿⣿⣄⠀⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣿⣿⣿⣿
+⠀⢸⣿⣿⡇⠠⡇⠀⠀⠀⠀⣿⣿⣿⣿⢸⣿⣷⣤⣙⠢⢌⡛⠷⣤⣄⠀⠈⠙⠿⣿⣿⣿⣿⣷⣦⣴⣾⣿⣤⣙⣛⣛⣥⣾⣿⣿⡌⣿⣿⣿⣷⣤⣀⣀⣀⣠⣴⣿⣿⣿⣿⣿⣿⣿
+⠀⢸⣿⣿⣷⡀⠡⠀⠀⠀⣰⣿⣿⣿⣿⢸⣿⣿⣿⣿⣿⣦⣌⡓⠤⣙⣿⣦⡄⠀⠈⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢡⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⠀⢸⣿⣿⣿⣿⣶⣤⣴⣾⣿⣿⣿⣿⣿⢸⣿⣿⣿⣿⣿⣿⣿⣿⣷⣾⣿⣿⣷⠀⣶⡄⠀⠈⠙⠿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⢃⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⠀⢸⣿⣿⣿⣿⣿⠟⠻⣿⣿⡏⣉⣭⣭⡘⠻⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⣿⡇⢸⡇⢠⡀⠈⠙⠋⠉⠉⠉⠉⠛⠫⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⠀⢸⣿⣿⠛⣿⣿⣀⣀⣾⡿⢀⣿⣿⣿⢻⣷⣦⢈⡙⠻⢿⣿⣿⣿⣿⣿⣿⣿⠀⣿⡇⢸⡇⢸⣿⠀⣦⠀⠀⠶⣶⣦⣀⠀⠘⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⠀⢸⣿⣿⣦⣈⡛⠿⠟⣋⣤⣾⣿⣿⣿⣸⣿⣿⢸⡇⢰⡆⢈⡙⠻⢿⣿⣿⣿⠀⢿⡇⢸⡇⢸⣿⢠⣿⡇⣿⡆⢈⡙⠻⠧⠀⢹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⠀⠀⣝⠛⢿⣿⣿⣿⣿⣿⣿⠟⣁⠀⠀⢈⠛⠿⢸⣇⢸⡇⢸⡇⣶⣦⣌⡙⠻⢄⡀⠁⠘⠇⠘⣿⢸⣿⡇⣿⡇⢸⡛⠷⣦⣄⠀⠹⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⡆⠀⠈⠳⢶⣤⣍⡉⠉⣩⣤⣤⡉⠻⢶⣤⣀⠂⠀⠉⠘⠇⢸⡇⣿⣿⣿⣿⣷⣦⣍⡑⠢⣄⠀⠈⠈⠻⠇⣿⡇⢸⣿⣷⣾⣿⡇⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣷⣦⣄⡀⠈⠉⠛⠶⢄⡉⠻⠿⣷⣦⣌⡙⠷⢶⣄⡀⠀⠈⠁⠙⢿⣿⣿⣿⣿⣿⣿⣷⣦⣍⡒⠤⣀⠀⠈⠃⢸⣿⣿⣿⣿⣷⠀⢸⣿⣿⣿⣿⣿⣿⠿⣿⣿⣿⣿⣿⣿⣿⣿⠿
+⣿⣿⣿⣿⣿⣷⣦⣄⡀⠀⠈⠉⠂⠄⢙⣿⣿⣷⣦⣈⠙⠳⢦⣄⡀⠠⠈⠛⠿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣌⡐⠄⢸⣿⣿⣿⣿⣿⡇⠀⣿⠿⣿⣿⣿⣿⣷⣌⠻⣿⣿⣿⡿⢰⣦⣤
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣄⡀⠀⠀⠀⠉⠛⠛⠛⠿⠷⣤⣈⠛⠷⢤⣈⡂⢄⡉⠻⠿⣿⣿⣿⣿⣿⣿⣿⣷⣤⣌⡛⠿⣿⣿⡇⠀⢿⣷⣌⡛⠿⠿⠏⣼⣷⣤⣉⣉⣀⣼⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡷⠀⢀⣤⣶⣦⣤⣤⣄⡈⠙⠻⠖⠀⣉⣩⣤⣤⣤⣤⣤⣤⣀⡈⠉⠙⠻⣿⣿⣿⣿⣶⡄⠉⠀⠀⣸⣿⣿⣿⣶⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠃⠀⣾⣿⣿⣿⣿⣿⣿⣿⠀⠀⣴⣿⣿⣿⣿⣿⠟⣩⣽⣿⣿⣿⣷⣦⣀⠀⠙⢻⣿⣿⠇⠀⣠⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⠀⢠⣿⣿⣿⣿⣿⣿⣿⣿⡇⢸⣿⣿⣿⣿⠏⣵⣾⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⡀⠉⠻⠀⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⠀⣸⣿⣿⣿⣿⣿⣿⣿⣿⡇⠘⣿⣿⡿⣡⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢟⣦⡀⠀⠸⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⢀⣀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⢀⣙⣟⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣘⣛⣻⣦⢀⣀⣙⣛⣛⣛⣛⣻⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿""", font=("Arial", "3"), bg=background)
+        self.pic.grid(row=3, padx=10, pady=10)
+
         # closes help dialogue
 
     def close_help(self, partner):

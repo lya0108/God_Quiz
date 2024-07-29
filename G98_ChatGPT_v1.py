@@ -1,4 +1,3 @@
-# imports
 import tkinter as tk
 from tkinter import *
 from functools import partial  # prevents unwanted windows
@@ -9,7 +8,6 @@ import random
 button_font = ("Arial", "16", "bold")
 button_fg = "#FFFFFF"
 
-# main, help, and incomplete play class
 
 class main:
     def __init__(self):
@@ -172,17 +170,30 @@ class Play:
 
         self.button_gods_list.clear()
         self.button_gods_list = self.get_round_gods()
-        round_ans = random.choice(self.button_gods_list)
 
-        count = 0
-        # set button text
-        for item in self.choice_button_ref:
-            item["text"] = self.button_gods_list[count][1]
-            count += 1
+        # Randomly choose the index of the correct answer button
+        correct_index = random.randint(0, len(self.choice_button_ref) - 1)
 
+        # Set button text and command
+        for i in range(len(self.choice_button_ref)):
+            # Set the text of the button to god's name
+            self.choice_button_ref[i]["text"] = self.button_gods_list[i][1]
 
+            # Determine if this button is the correct answer
+            if i == correct_index:
+                # If this is the correct answer button
+                self.choice_button_ref[i].config(command=lambda: self.correct_answer())
+            else:
+                # If this is not the correct answer button
+                self.choice_button_ref[i].config(command=lambda: self.wrong_answer())
 
+    def correct_answer(self):
+        # Handle correct answer logic here
+        print(f"Correct!")
 
+    def wrong_answer(self):
+        # Handle wrong answer logic here
+        print("Wrong answer!")
 
     def to_help(self):
         DisplayHelp(self)

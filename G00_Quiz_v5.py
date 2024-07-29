@@ -9,6 +9,7 @@ import random
 button_font = ("Arial", "16", "bold")
 button_fg = "#FFFFFF"
 
+# same as Quiz_v4 but with difficulties added
 
 class main:
     def __init__(self):
@@ -100,6 +101,10 @@ class Play:
         self.play_box = Toplevel()
 
         self.all_gods = self.get_all_gods()
+
+        # variables for stats when game ends
+        rounds_played = IntVar()
+        rounds_played.set(0)
 
         # if users press cross at top, closes game
         self.play_box.protocol('WM_DELETE_WINDOW', partial(self.close_play))
