@@ -103,8 +103,11 @@ class Play:
         self.all_gods = self.get_all_gods()
 
         # variables for stats when game ends
-        rounds_played = IntVar()
-        rounds_played.set(0)
+        self.rounds_wanted = IntVar()
+        self.rounds_wanted.set(how_many)
+
+        self.rounds_played = IntVar()
+        self.rounds_played.set(0)
 
         # if users press cross at top, closes game
         self.play_box.protocol('WM_DELETE_WINDOW', partial(self.close_play))
@@ -143,9 +146,10 @@ class Play:
                                   command=self.to_help)
         self.help_button.grid(row=0, column=0, padx=10)
 
-        self.next_button = Button(self.help_next_frame, text="Next", font=button_font, bg="#00bfff", fg=button_fg,
-                                  activebackground="#0086b3", activeforeground="#ffffff", width=10,
-                                  command=self.new_round)
+        self.next_button = Button(self.help_next_frame, text="Next", font=button_font, bg="#00bfff",
+                                  fg=button_fg,
+                                  activebackground="#0086b3", activeforeground="#ffffff",
+                                  width=10, state=DISABLED, command=lambda: self.new_round(difficulty))
         self.next_button.grid(row=0, column=1, padx=10)
 
         self.new_round(difficulty)
@@ -181,6 +185,13 @@ class Play:
     def new_round(self, difficulty):
         self.next_button.config(state=DISABLED)
 
+        current_round = self.rounds_played.get()
+        current_round += 1
+        self.rounds_played.set(current_round)
+
+        new_heading = f"Question {current_round} of {self.rounds_wanted.get()}"
+        self.game_heading.config(text=new_heading)
+
         self.button_gods_list.clear()
         self.button_gods_list = self.get_round_gods()
 
@@ -189,24 +200,23 @@ class Play:
 
         # Set button text and command
         for i in range(len(self.choice_button_ref)):
-            # Set the text of the button to god's name
+            # Set the text of the button to god's name and reset bg colour
+            self.choice_button_ref[i]["bg"] = "#FFFFFF"
             self.choice_button_ref[i]["text"] = self.button_gods_list[i][1]
             self.choice_button_ref[i]["state"] = NORMAL
 
+            # checks which answer is correct and enable next button
+            self.choice_button_ref[i].config(command=lambda: self.check_answer(correct_index, current_round))
+
             # Determine if this button is the correct answer
             if i == correct_index:
-                # If this is the correct answer button
-                self.choice_button_ref[i].config(command=lambda: self.check_answer(correct_index))
                 if difficulty == "Normal":
                     self.question_label.config(
                         text=f"Who is the {self.button_gods_list[i][0]} {self.button_gods_list[i][2]}")
                 else:
                     self.question_label.config(text=f"Who is the {self.button_gods_list[i][2]}")
-            else:
-                # If this is not the correct answer button
-                self.choice_button_ref[i].config(command=lambda: self.check_answer(correct_index))
 
-    def check_answer(self, correct_index):
+    def check_answer(self, correct_index, current_round):
 
         for i in range(len(self.choice_button_ref)):
             if i == correct_index:
@@ -217,6 +227,11 @@ class Play:
                 self.choice_button_ref[i]["bg"] = "#CF3C49"
 
             self.choice_button_ref[i]["state"] = DISABLED
+
+        if current_round == self.rounds_wanted.get():
+            self.next_button.config(state=DISABLED)
+        else:
+            self.next_button.config(state=NORMAL)
 
     def to_help(self):
         DisplayHelp(self)

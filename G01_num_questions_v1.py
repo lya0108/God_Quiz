@@ -5,7 +5,7 @@ def num_check():
     try:
         response = int(input("Choose a Number: "))
 
-        if response < 0:
+        if response <= 0:
             print(error)
 
         else:
