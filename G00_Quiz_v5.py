@@ -9,7 +9,8 @@ import random
 button_font = ("Arial", "16", "bold")
 button_fg = "#FFFFFF"
 
-# same as Quiz_v4 but with difficulties added
+
+# game finished no stats
 
 class main:
     def __init__(self):
@@ -229,7 +230,8 @@ class Play:
             self.choice_button_ref[i]["state"] = DISABLED
 
         if current_round == self.rounds_wanted.get():
-            self.next_button.config(state=DISABLED)
+            self.next_button.config(state=NORMAL, text="Return")
+            self.next_button.config(command=lambda: self.close_play())
         else:
             self.next_button.config(state=NORMAL)
 
