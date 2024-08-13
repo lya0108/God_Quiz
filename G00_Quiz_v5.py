@@ -121,7 +121,7 @@ class Play:
                                   text=rounds_heading, font=("Arial", "16", "bold"))
         self.game_heading.grid(row=0)
 
-        self.question_label = Label(self.quiz_frame, text="", wrap=300)
+        self.question_label = Label(self.quiz_frame, text="", wrap=300, height=3)
         self.question_label.grid(row=1)
 
         self.choice_frame = Frame(self.quiz_frame)  # frame for choice buttons
@@ -133,7 +133,7 @@ class Play:
         # create buttons to choose
         for item in range(0, 4):
             self.choice_button = Button(self.choice_frame,
-                                        width=18, wrap=100, disabledforeground="#000000")
+                                        width=18, wrap=100, disabledforeground="#000000", height=2)
 
             self.choice_button.grid(row=item // 2, column=item % 2, padx=10, pady=5)
 
@@ -207,7 +207,7 @@ class Play:
             self.choice_button_ref[i]["state"] = NORMAL
 
             # checks which answer is correct and enable next button
-            self.choice_button_ref[i].config(command=lambda: self.check_answer(correct_index, current_round))
+            self.choice_button_ref[i].config(command=lambda i=i: self.check_answer(i, correct_index,current_round))
 
             # Determine if this button is the correct answer
             if i == correct_index:
@@ -217,16 +217,16 @@ class Play:
                 else:
                     self.question_label.config(text=f"Who is the {self.button_gods_list[i][2]}")
 
-    def check_answer(self, correct_index, current_round):
+    def check_answer(self, clicked_index, correct_index,current_round):
+
+        if clicked_index == correct_index:
+            # Handle correct answer logic here
+            self.choice_button_ref[clicked_index]["bg"] = "#2ebb01"
+        else:
+            # Handle wrong answer logic here
+            self.choice_button_ref[clicked_index]["bg"] = "#CF3C49"
 
         for i in range(len(self.choice_button_ref)):
-            if i == correct_index:
-                # Handle correct answer logic here
-                self.choice_button_ref[i]["bg"] = "#2ebb01"
-            else:
-                # Handle wrong answer logic here
-                self.choice_button_ref[i]["bg"] = "#CF3C49"
-
             self.choice_button_ref[i]["state"] = DISABLED
 
         if current_round == self.rounds_wanted.get():
