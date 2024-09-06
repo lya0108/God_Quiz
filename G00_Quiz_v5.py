@@ -4,14 +4,13 @@ from tkinter import *
 from functools import partial  # prevents unwanted windows
 import csv
 import random
-import time
 
 # font for all buttons: Arial size 20 bold, with white text
 button_font = ("Arial", "16", "bold")
 button_fg = "#FFFFFF"
 
 
-# game finished no stats
+# game finished
 
 class main:
     def __init__(self):
@@ -161,14 +160,14 @@ class Play:
                                   width=8, state=DISABLED, command=lambda: self.new_round(difficulty))
         self.next_button.grid(row=0, column=2)
 
-        self.score_time_frame = Frame(self.quiz_frame, bg="#ffe291")
-        self.score_time_frame.grid(row=4, pady=10)
+        self.score_frame = Frame(self.quiz_frame, bg="#ffe291")
+        self.score_frame.grid(row=4, pady=10)
 
-        self.stats_score = Label(self.score_time_frame, text=f"Score: 0%", bg="#ffe291")
-        self.stats_score.grid(row=0, column=0, padx=46, pady=10)
+        self.stats_score = Label(self.score_frame, text=f"Score: 0%", bg="#ffe291")
+        self.stats_score.grid(row=0, column=0, padx=37, pady=10)
 
-        self.stats_time = Label(self.score_time_frame, text=f"Time: 0s", bg="#ffe291")
-        self.stats_time.grid(row=0, column=1, padx=46)
+        self.high_score = Label(self.score_frame, text=f"High Score: 0%", bg="#ffe291")
+        self.high_score.grid(row=0, column=1, padx=37, pady=10)
 
         self.new_round(difficulty)
 
@@ -294,7 +293,8 @@ class DisplayHelp:
                    "game will tell you whether you're correct or not. Then press 'Next' to move on\n\nNormal " \
                    "Difficulty: Default\nHard Difficulty: removes pantheon hint in question"
 
-        self.help_info = Label(self.help_frame, text=helpinfo, font=("Arial", "12"), bg=background, justify=LEFT, wraplength=300)
+        self.help_info = Label(self.help_frame, text=helpinfo, font=("Arial", "12"), bg=background, justify=LEFT,
+                               wraplength=300)
         self.help_info.grid(row=1, padx=10, pady=10, column=0)
 
         self.return_button = Button(self.help_frame, text="Return", font=("Arial", "15", "bold"), bg="#a30000",
