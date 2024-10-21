@@ -27,8 +27,11 @@ class main:
                                        font=("Arial", "12"), justify="center")
         self.main_instructions.grid(row=1, pady=10)
 
+        self.error_label = Label(self.main_frame, text="")
+        self.error_label.grid(row=2, padx=5, pady=1)
+
         self.entry_frame = Frame(self.main_frame)
-        self.entry_frame.grid(row=2, padx=10, pady=10)
+        self.entry_frame.grid(row=3, padx=10, pady=10)
 
         self.main_entry = Entry(self.entry_frame, font=("Arial", "12"), width=18)
         self.main_entry.grid(row=0, column=0, ipady=6, padx=10)
@@ -39,21 +42,19 @@ class main:
         self.dropbox.current(0)  # sets default value on dropbox to first item in list
         self.dropbox.grid(row=0, column=1)
 
-        self.error_label = Label(self.main_frame, text="")
-        self.error_label.grid(row=3, padx=5, pady=1)
-
         self.button_frame = Frame(self.main_frame)
         self.button_frame.grid(row=5, padx=10, pady=10)
 
         self.help_button = Button(self.button_frame, text="Help", font=button_font, bg="#F23390", fg=button_fg,
-                                  activebackground="#b40b5e", activeforeground="#ffffff", width=9,
+                                  activebackground="#b40b5e", activeforeground="#ffffff", width=8,
                                   command=self.to_help)
-        self.help_button.grid(row=0, column=0, padx=10)
+        self.help_button.grid(row=0, column=1, padx=15)
 
         self.play_button = Button(self.button_frame, text="Play", font=button_font, fg=button_fg, bg="#c721fd",
-                                  activebackground="#8b17b1", activeforeground="#ffffff", width=9,
+                                  activebackground="#8b17b1", activeforeground="#ffffff", width=8,
                                   command=lambda: self.num_question())
-        self.play_button.grid(row=0, column=1, padx=10)
+        self.play_button.grid(row=0, column=0, padx=15)
+
 
     # checks user input is bigger than 0
     def num_question(self):
@@ -237,7 +238,7 @@ class Play:
 
         if clicked_index == correct_index:
             # Handle correct answer logic here
-            self.choice_button_ref[clicked_index]["bg"] = "#2ebb01"
+            self.choice_button_ref[clicked_index]["bg"] = "#2ebb01"  # green
             num_correct = self.rounds_correct.get()
             num_correct += 1
             self.rounds_correct.set(num_correct)
@@ -247,7 +248,8 @@ class Play:
             self.stats_score.config(text=f"Score: {score:.1f}%")
         else:
             # Handle wrong answer logic here
-            self.choice_button_ref[clicked_index]["bg"] = "#CF3C49"
+            self.choice_button_ref[clicked_index]["bg"] = "#CF3C49"  # red
+            self.choice_button_ref[correct_index]["bg"] = "#2ebb01"  # green
             num_wrong = self.rounds_wrong.get()
             num_wrong += 1
             self.rounds_wrong.set(num_wrong)
@@ -275,11 +277,15 @@ class Play:
 
     def close_play(self):
         score = self.rounds_correct.get() / self.rounds_wanted.get() * 100
-        messagebox.showinfo("Stats", f"Correct: {self.rounds_correct.get()}\nWrong: {self.rounds_wrong.get()}\nScore: {score:.1f}%")
+        stats_msg = f"Correct: {self.rounds_correct.get()}\nWrong: {self.rounds_wrong.get()}\nScore: {score:.1f}%"
+
+        self.play_box.destroy()
+        # message box to show stats when game is finished
+        messagebox.showinfo("Stats", stats_msg)
+        # checks if score is the new highscore
         self.highscore(self.rounds_correct.get())
         # reshow root and end current game
         root.deiconify()
-        self.play_box.destroy()
 
 
 class DisplayHelp:
@@ -307,7 +313,8 @@ class DisplayHelp:
                    "game will tell you whether you're correct or not. Then press 'Next' to move on\n\nNormal " \
                    "Difficulty: Default\nHard Difficulty: removes pantheon hint in question\n\nScore is the " \
                    "percentage of correct answers by number of rounds\nI.e. 1 correct in 10 rounds = 1/10 = 10%" \
-                   "\n\nHigh Score is just the highest number of questions correct in 1 game"
+                   "\n\nHigh Score is just the highest number of questions correct in 1 game\nIf you get a new " \
+                   "highscore it won't update till after you finish"
 
         self.help_info = Label(self.help_frame, text=helpinfo, font=("Arial", "12"), bg=background, justify=LEFT,
                                wraplength=300)

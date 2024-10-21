@@ -1,6 +1,6 @@
 score = int(input("Score? "))
 
-file = open("Highscore.txt", "w+")
+file = open("testing.txt", "r+")
 high_score = file.read()
 if high_score == "":
     high_score = "0"
